@@ -1,0 +1,124 @@
+---
+title: "R Notebook"
+output: html_document
+---
+
+```{r}
+library(deSolve)
+library(tidyverse)
+```
+
+# Model
+
+![](./images/box_chart.png)
+
+$$
+\begin{align*}
+\frac{dS}{dt} &= r(S+S_v+I+I_v+ (1- \frac{S}{k}) - (v +m )S - bSI\\
+\frac{dI}{dt} &= bSI - (a+m+e+v)I\\
+\frac{dS_v}{dt} &= vS +aI+ hI_v + gC - cS_v I_v - mS_v \\
+\frac{dI_v}{dt} &= vI + cS_v I_v - (h+f+m) I_v\\
+\frac{dC}{dt} &=  eI + fI_v - (d +g) C\\
+\end{align*}
+$$
+
+Les variables :
+
+- $S$ : Nombre d'individus sains n'ayant pas été vaccinés dans la population
+- $S_v$ : Nombre d'individus sains vaccinés
+- $I$ : Nombre de personnes non-vaccinées infectées par le papillomavirus humain
+- $I_v$ : Nombre de personnes vaccinées infectées par le papillomavirus humain
+- $C$ : Nombre de personnes pour lesquelles l'infection évolue en cancer du col de l'utérus.
+
+Les paramètres :
+
+- $r$, $k$ : r est le taux de reproduction et k la capacité d'accueil (ici de la population humaine) dans le cadre d'une croissance logistique suivie par la population (mortalité et naissance indépendantes du cancer).
+- $m$ : taux de mortalité naturelle (sans influence du cancer)
+- $d$ : taux de mortalité due au cancer du col de l'utérus
+- $v$ : taux de vaccination
+- $b$, $c$ : taux d'infection par le papillomavirus humain des personnes saines (b) et des personnes saines vaccinées (c)
+- $e$, $f$ : taux d'évolution de l'infection en cancer chez les infectés (e) et les infectés vaccinés (f)
+- $a$, $h$ : taux de guérison de l'infection sans cancer pour les infectés (a) et les infectés vaccinés (h)
+- $g$ : taux de guérison du cancer du col de l'utérus
+
+```{r}
+time_vector <- seq(0, 100, 0.25)
+init <- c(S = 0, I = 1, Sv = 9999, Iv = 0, C = 0)
+params <- c(
+  # croissance logistique :
+  r = 1.2,
+  k = 10000,
+
+  # taux de mortalité: ok
+  m = 0.0097, # mort naturel
+  d = 0.047, # mort par cancer TBD
+
+  # taux de contamination:
+  b = 4e-4, # non vacciné
+  c = 1e-4, # vacciné
+
+  # taux de vaccination:
+  v = 0.04,
+
+  # taux de guérison:
+  a = 0.07, # non vacciné
+  h = 0.09, # vacciné
+
+  # taux de cancer: ok
+  e = 0.08, # non vacciné
+  f = 0.02, # vacciné
+
+  # taux guérison cancer
+  g = 0.5
+)
+
+logisticFunction <- function(N, r, k) {
+  N * r * (1 - N / k)
+}
+
+modeleSIC <- function(t, y, params) {
+  with(as.list(c(y, params)), {
+    dS <- logisticFunction(S + I + Iv + Sv + C, r, k) -
+      (v + m) * S -
+      b * S * I
+    dI <- b * S * I - (a + m + e + v) * I
+    dSv <- v * S + a * I + h * Iv + g * C -
+      c * Sv * Iv -
+      m * Sv
+    dIv <- v * I + c * Sv * Iv - (h + f + m) * Iv
+    dC <- e * I + f * Iv - (d + g) * C
+    return(list(c(dS, dI, dSv, dIv, dC)))
+  })
+}
+```
+
+```{r}
+results <- as.data.frame(lsoda(init, time_vector, modeleSIC, params))
+
+results %>%
+  pivot_longer(!time, names_to = "pop", values_to = "N") %>%
+  ggplot() +
+  geom_line(aes(x = time, y = N, color = pop)) +
+  labs(y = "Effectif", x = "Temps",
+       title = "Exemple de dynamique de modèle SIR",
+       color = "Population")
+
+results
+```
+
+```{r}
+results %>%
+  transmute(time, S = S + Sv, I = I + Iv, C) %>%
+  pivot_longer(!time, names_to = "pop", values_to = "N") %>%
+  ggplot() +
+  geom_line(aes(x = time, y = N, color = pop)) +
+  labs(y = "Effectif", x = "Temps",
+       title = "Exemple de dynamique de modèle SIR",
+       color = "Population")
+```
+
+```{r}
+results %>%
+  group_by(time) %>%
+  summarise(tot = sum(S, Sv, I, Iv, C), V = (Sv+Iv) / tot * 100, S = sum(S, Sv) / tot * 100, I = sum(I, Iv) / tot * 100, C = C / tot * 100)
+```
