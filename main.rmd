@@ -16,7 +16,7 @@ library(gganimate)
 
 # Introduction
 
-Le papillomavirus humain ou HPV (Human Papillomavirus) est un virus qui touche 80% de la population au début de la vie sexuelle. Cette infection peut affecter différentes muqueuses chez les femmes comme chez les hommes et peut évoluer sous différentes formes de cancer au niveau des régions génitales, anales et oropharyngées. Dans notre modèle, nous ne parlerons que des cas de cancer du col de l'utérus chez la femme, car cela représente la majorité des cas. Si l'infection par ce virus sexuellement transmissible ne provoque en général aucuns problèmes, dans 10% des cas, elle provoque des lésions précancéreuses qui peuvent évoluer en un cancer du col de l'utérus 10 à 15 ans après l'infection. Des vaccins tels que le [Gardasil](https://youtu.be/pL5_p-tnA-g) sont maintenant disponibles afin de protéger contre le HPV qui est responsable de 70% des cancers du col de l'utérus. Ils peuvent être faits aux adolescents et jeunes adultes avec des doses différentes en fonction de leur âge. Nous avons donc réalisé un modèle prenant en compte l'influence sur l'infection.
+Le papillomavirus humain ou HPV (Human Papillomavirus) est un virus qui touche 80% de la population, majoritairement au début de la vie sexuelle. Cette infection peut affecter différentes muqueuses chez les femmes comme chez les hommes et peut évoluer sous différentes formes de cancers au niveau des régions génitales, anales et oropharyngées. Dans notre modèle, nous ne parlerons que des cas de cancer du col de l'utérus chez la femme, car cela représente la majorité des cas. Si l'infection par ce virus sexuellement transmissible ne provoque en général aucuns problèmes, dans 10% des cas, elle entraîne des lésions précancéreuses qui peuvent évoluer en un cancer du col de l'utérus jusqu'à 10 à 15 ans après l'infection. Des vaccins tels que le Gardasil sont maintenant disponibles afin de protéger contre le HPV qui est responsable de 70% des cancers du col de l'utérus. Ils peuvent être faits aux adolescents et jeunes adultes avec des doses différentes en fonction de leur âge. Nous avons donc réalisé un modèle prenant en compte l'influence de la vaccination sur l'infection.
 
 > Comment modéliser l'infection d'une population humaine par le papillomavirus, l'évolution vers des cas de cancers et l'effet du vaccin sur le modèle ?
 
@@ -25,7 +25,7 @@ Le papillomavirus humain ou HPV (Human Papillomavirus) est un virus qui touche 8
 Dans un premier temps, nous avons modélisé un modèle basé sur un modèle SIR simple, prenant en compte les individus sains ($S$), les individus infectés ($I$) et les individus pour lesquels l'infection a évolué en cancer du col de l'utérus ($C$). Ce modèle fait intervenir 3 paramètres :
 ![](./images/box_chart_v1.png)
 
-Le modèle n'est pas complet puisque, comme vu précédemment, l'infection par le virus ne résulte pas systématiquement en un cancer ; la plupart des gens guérissent simplement de l'infection. Cela a pu être modélisée par une flèche retour de la case $I$ à la case $S$. De plus, le cancer peut être mortel dans certain cas (taux de décès du cancer $d$) et peut amener à une rémission changeant l'état des individus atteints du cancer en individus sain (taux de guérison du cancer f) :
+Le modèle n'est pas complet puisque, comme vu précédemment, l'infection par le virus ne résulte pas systématiquement en un cancer ; la plupart des gens guérissent simplement de l'infection. Cela a pu être modélisée par une flèche retour de la case $I$ à la case $S$. De plus, le cancer peut être mortel (taux de décès du cancer $d$) ou peut amener à une rémission, changeant l'état des individus atteints du cancer en individus sains (taux de guérison du cancer $f$) :
 ![](./images/box_chart_v2.png)
 
 Ce modèle, bien que plus complet que le dernier, ne prend pas en compte la vaccination qui réduit les taux d'infection et d'évolution de l'infection en cancer. On crée donc 2 nouvelles variables $S_v$ et $I_v$ représentant les individus sains et infectés ayant reçu le vaccin avec un taux de vaccination $v$ (ce taux est le même pour les deux cases, car on considère que les gens infectés ne sont pas différents des personnes saines dans la prise du vaccin puisque les symptômes de l'infection (s'il y en a) n'arrive que très longtemps après l'infection et donc à un moment de la vie ou on ne vaccine plus). Enfin, nous avons également considéré que les personnes atteintes et vaccinées pouvaient soit guérir (flèche de retour) soit développer un cancer du col de l'utérus (flèche allant vers $C$) :
@@ -200,7 +200,7 @@ results %>%
 
 # Analyse de sensibilité
 
-Dans un premier temps, nous implémentons une fonction qui permet de réaliser une analyse de sensibilité sur un modèle donné. Cette fonction prend en entrée le modèle, la clée correspond au paramètre que l'on veut analyser, et le vecteur contenant les différentes valeurs que va prendre le paramètre.
+Dans un premier temps, nous implémentons une fonction qui permet de réaliser une analyse de sensibilité sur un modèle donné. Cette fonction prend en entrée une clé correspondant au paramètre du modèle que l'on veut analyser et le vecteur contenant les différentes valeurs que va prendre le paramètre désigner par cette clé (`values`).
 
 ```{r}
 sensibility <- function(key, values) {
