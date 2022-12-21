@@ -4,6 +4,13 @@
   <component name="RMarkdownSettings">
     <option name="renderProfiles">
       <map>
+        <entry key="file://$PROJECT_DIR$/../TP_modelo_1_-dyna_pop_L2_2022.rmd">
+          <value>
+            <RMarkdownRenderProfile>
+              <option name="outputDirectoryUrl" value="file://$PROJECT_DIR$/.." />
+            </RMarkdownRenderProfile>
+          </value>
+        </entry>
         <entry key="file://$PROJECT_DIR$/../TP_modelo_2_-epidemio_L2_2022.rmd">
           <value>
             <RMarkdownRenderProfile>
@@ -16,6 +23,13 @@
             <RMarkdownRenderProfile>
               <option name="lastOutput" value="$PROJECT_DIR$/main.html" />
               <option name="outputDirectoryUrl" value="file://$PROJECT_DIR$" />
+            </RMarkdownRenderProfile>
+          </value>
+        </entry>
+        <entry key="file://$PROJECT_DIR$/../storm_dataset/index.rmd">
+          <value>
+            <RMarkdownRenderProfile>
+              <option name="outputDirectoryUrl" value="file://$PROJECT_DIR$/../storm_dataset" />
             </RMarkdownRenderProfile>
           </value>
         </entry>
